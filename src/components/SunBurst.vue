@@ -4,6 +4,8 @@
 </template>
 
 <script>
+import echarts from "echarts";
+
 export default {
   name: "Sunburst",
   props: {
@@ -82,7 +84,7 @@ export default {
         myChart.setOption(option);
       })
       .catch(function (err) {
-        // Error :(
+        console.log(err);
       });
   },
   data() {
@@ -92,9 +94,9 @@ export default {
   },
 };
 </script>
-
-<style lang="sass" scoped>
-#chart
-  width: 100vw
-  height: 100vh
+<style scoped>
+#chart {
+  height: 900px;
+  widows: 900px;
+}
 </style>
