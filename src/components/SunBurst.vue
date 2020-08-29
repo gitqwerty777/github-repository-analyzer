@@ -9,15 +9,16 @@ import echarts from "echarts";
 export default {
   name: "Sunburst",
   props: {
-    msg: String,
+    user: String,
   },
   mounted: function () {
     // 基於準備好的dom，初始化echarts實例
     var myChart = echarts.init(document.getElementById("chart"));
     // 指定圖表的配置項和數據
     let data;
-    const jsonURL = "/skill.json";
-    //const jsonURL = "";
+    //const jsonURL = "/skill.json";
+    const jsonURL = `https://api.github.com/users/${this.user}/repos`;
+    const title = `Github repository analyze: User ${this.user}`;
 
     fetch(jsonURL, {
       method: "get",
@@ -27,13 +28,43 @@ export default {
       })
       .then(function (jsonData) {
         data = jsonData;
+        data = jsonData.map(function (element) {
+          return {
+            name: element.name,
+            link: element["html_url"],
+            target: "_blank",
+            description: element.description,
+            language: element.language,
+            forks: element.forks,
+            stars: element.stargazers_count,
+            value: element.stargazers_count + 1,
+          };
+        });
+
+        var totalObj = {};
+        data.forEach(function (newObj) {
+          console.log(newObj);
+          if (Object.prototype.hasOwnProperty.call(totalObj, newObj.language)) {
+            //https://juejin.im/post/6844903881437085709
+            //if (totalObj.hasOwnProperty(newObj.language)) {
+            totalObj[newObj.language].push(newObj);
+          } else {
+            totalObj[newObj.language] = [newObj];
+          }
+        });
+        data = totalObj;
+        console.log(data);
+        data = Object.keys(data).map(function (key) {
+          return { name: key, children: data[key] };
+        });
+
         var option = {
           title: {
-            text: `Github repository analyze`,
+            text: title,
             subtext: `Source: ${jsonURL}`,
             textStyle: {
               fontSize: 20,
-              align: "center",
+              align: "left",
             },
             subtextStyle: {
               align: "center",
@@ -43,6 +74,7 @@ export default {
           series: {
             type: "sunburst",
             highlightPolicy: "descendant",
+            nodeClick: "link",
             data: data,
             radius: [0, "100%"],
             sort: null,
@@ -87,16 +119,12 @@ export default {
         console.log(err);
       });
   },
-  data() {
-    return {
-      count: 0,
-    };
-  },
 };
 </script>
+
 <style scoped>
 #chart {
-  height: 900px;
-  widows: 900px;
+  height: 100vh;
+  width: 100vw;
 }
 </style>
