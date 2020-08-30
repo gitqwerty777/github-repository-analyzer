@@ -25,4 +25,10 @@ export default {
 body {
   margin: 0;
 }
+
+.tooltip-title {
+  font-size: 18px;
+  margin: 0;
+  padding: 0;
+}
 </style>

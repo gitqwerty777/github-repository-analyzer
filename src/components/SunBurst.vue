@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div id="page">
     Chart Value:
-    <select v-model="selected">
-      <option selected>Stars</option>
+    <select v-model="selected" @change="DrawChart">
+      <option>Stars</option>
       <option>Forks</option>
       <option>Equal</option>
     </select>
@@ -19,15 +19,15 @@ export default {
   props: {
     user: String,
   },
+  data: function () {
+    return {
+      selected: "Stars",
+    };
+  },
   mounted: function () {
     // 基於準備好的dom，初始化echarts實例
-    var myChart = echarts.init(document.getElementById("chart"));
-    // 指定圖表的配置項和數據
-    let data;
-    //const jsonURL = "/skill.json";
+    var that = this;
     const jsonURL = `https://api.github.com/users/${this.user}/repos`;
-    const title = `Github repository analyze: User ${this.user}`;
-
     fetch(jsonURL, {
       method: "get",
     })
@@ -35,8 +35,7 @@ export default {
         return response.json();
       })
       .then(function (jsonData) {
-        data = jsonData;
-        data = jsonData.map(function (element) {
+        let data = jsonData.map(function (element) {
           return {
             name: element.name,
             link: element["html_url"], //TODO: nodeclick=link?
@@ -46,9 +45,11 @@ export default {
             forks: element.forks,
             stars: element.stargazers_count,
             value: element.stargazers_count + 1,
-            tooltip: `<h4>${element.name}</h4>${element.forks} forks<br/>${
-              element.stargazers_count
-            } stars<br/>${element.description || "No description"}`,
+            tooltip: `<p class="tooltip-title">${element.name}</p>${
+              element.fork ? "forked<br/>" : ""
+            }${element.forks} forks<br/>${element.stargazers_count} stars<br/>${
+              element.description || "No description"
+            }`,
           };
         });
 
@@ -63,79 +64,86 @@ export default {
           }
         });
         data = totalObj;
-        console.log(data);
         data = Object.keys(data).map(function (key) {
           return { name: key, children: data[key] };
         });
 
-        var option = {
-          title: {
-            text: title,
-            textStyle: {
-              fontSize: 20,
-              align: "left",
-            },
-            subtext: `Source: ${jsonURL}`,
-            subtextStyle: {
-              align: "center",
-            },
-            sublink: jsonURL,
-          },
-          tooltip: {},
-          series: {
-            type: "sunburst",
-            highlightPolicy: "descendant",
-            nodeClick: "link",
-            data: data,
-            radius: [0, "100%"],
-            sort: null,
-            animationDelayUpdate: function (idx) {
-              // 越往后的数据延迟越大
-              return idx * 70;
-            },
-            label: {
-              minAngle: 5,
-            },
-            levels: [
-              {},
-              {
-                r0: "15%",
-                r: "35%",
-                itemStyle: {
-                  borderWidth: 2,
-                },
-                label: {
-                  align: "left",
-                },
-              },
-              {
-                r0: "40%",
-                r: "45%",
-                label: {
-                  position: "outside",
-                  padding: 3,
-                  silent: false,
-                },
-                itemStyle: {
-                  borderWidth: 3,
-                },
-              },
-            ],
-          },
-        };
-        // 使用剛指定的配置項和數據顯示圖表。
-        myChart.setOption(option);
+        that.DrawChart(data);
       })
       .catch(function (err) {
         console.log(err);
       });
   },
+  methods: {
+    DrawChart: function (data) {
+      var myChart = echarts.init(document.getElementById("chart"));
+      const jsonURL = `https://api.github.com/users/${this.user}/repos`;
+      const title = `Github repository analyze: User ${this.user}`;
+      var option = {
+        title: {
+          text: title,
+          textStyle: {
+            fontSize: 20,
+            align: "left",
+          },
+          subtext: `Source: ${jsonURL}`,
+          subtextStyle: {
+            align: "center",
+          },
+          sublink: jsonURL,
+        },
+        tooltip: {},
+        series: {
+          type: "sunburst",
+          highlightPolicy: "descendant",
+          data: data,
+          radius: [0, "100%"],
+          sort: null,
+          animationDelayUpdate: function (idx) {
+            // 越往后的数据延迟越大
+            return idx * 30;
+          },
+          levels: [
+            {},
+            {
+              r0: "15%",
+              r: "35%",
+              itemStyle: {
+                borderWidth: 2,
+              },
+              label: {
+                align: "left",
+              },
+            },
+            {
+              r0: "35%",
+              r: "45%",
+              label: {
+                position: "outside",
+                padding: 3,
+                silent: false,
+              },
+              itemStyle: {
+                borderWidth: 3,
+              },
+            },
+          ],
+        },
+      };
+      // 使用剛指定的配置項和數據顯示圖表。
+      myChart.setOption(option);
+    },
+  },
 };
 </script>
 
 <style scoped>
-#chart {
+#page {
   height: 100vh;
+  width: 100vw;
+}
+#chart {
+  height: 95vh;
   width: 100vw;
 }
 </style>
