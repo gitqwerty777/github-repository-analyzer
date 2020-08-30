@@ -22,6 +22,7 @@ export default {
   data: function () {
     return {
       selected: "Stars",
+      fixedData: "",
     };
   },
   mounted: function () {
@@ -35,7 +36,7 @@ export default {
         return response.json();
       })
       .then(function (jsonData) {
-        let data = jsonData.map(function (element) {
+        that.fixedData = jsonData.map(function (element) {
           return {
             name: element.name,
             link: element["html_url"], //TODO: nodeclick=link?
@@ -53,32 +54,46 @@ export default {
           };
         });
 
-        var totalObj = {};
-        data.forEach(function (newObj) {
-          newObj.language = newObj.language || "Unknown";
-          if (Object.prototype.hasOwnProperty.call(totalObj, newObj.language)) {
-            //https://juejin.im/post/6844903881437085709
-            totalObj[newObj.language].push(newObj);
-          } else {
-            totalObj[newObj.language] = [newObj];
-          }
-        });
-        data = totalObj;
-        data = Object.keys(data).map(function (key) {
-          return { name: key, children: data[key] };
-        });
-
-        that.DrawChart(data);
+        that.DrawChart();
       })
       .catch(function (err) {
         console.log(err);
       });
   },
   methods: {
-    DrawChart: function (data) {
+    GetValue: function (obj) {
+      switch (this.selected) {
+        case "Forks":
+          return obj.forks + 1;
+        case "Stars":
+          return obj.stars + 1;
+        case "Equal":
+          return 1;
+      }
+      return 0;
+    },
+    DrawChart: function () {
       var myChart = echarts.init(document.getElementById("chart"));
       const jsonURL = `https://api.github.com/users/${this.user}/repos`;
       const title = `Github repository analyze: User ${this.user}`;
+
+      var totalObj = {};
+      this.fixedData.forEach(function (newObj) {
+        newObj.language = newObj.language || "Unknown";
+        newObj.value = this.GetValue(newObj);
+        if (Object.prototype.hasOwnProperty.call(totalObj, newObj.language)) {
+          //https://juejin.im/post/6844903881437085709
+          totalObj[newObj.language].push(newObj);
+        } else {
+          totalObj[newObj.language] = [newObj];
+        }
+      }, this);
+
+      let data = totalObj;
+      data = Object.keys(totalObj).map(function (key) {
+        return { name: key, children: data[key] };
+      });
+
       var option = {
         title: {
           text: title,
