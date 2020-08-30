@@ -1,6 +1,14 @@
 <template>
-  <!-- 為ECharts準備一個具備大小（寬高）的Dom -->
-  <div id="chart"></div>
+  <div>
+    Chart Value:
+    <select v-model="selected">
+      <option selected>Stars</option>
+      <option>Forks</option>
+      <option>Equal</option>
+    </select>
+    <!-- 為ECharts準備一個具備大小（寬高）的Dom -->
+    <div id="chart"></div>
+  </div>
 </template>
 
 <script>
@@ -31,22 +39,24 @@ export default {
         data = jsonData.map(function (element) {
           return {
             name: element.name,
-            link: element["html_url"],
+            link: element["html_url"], //TODO: nodeclick=link?
             target: "_blank",
             description: element.description,
             language: element.language,
             forks: element.forks,
             stars: element.stargazers_count,
             value: element.stargazers_count + 1,
+            tooltip: `<h4>${element.name}</h4>${element.forks} forks<br/>${
+              element.stargazers_count
+            } stars<br/>${element.description || "No description"}`,
           };
         });
 
         var totalObj = {};
         data.forEach(function (newObj) {
-          console.log(newObj);
+          newObj.language = newObj.language || "Unknown";
           if (Object.prototype.hasOwnProperty.call(totalObj, newObj.language)) {
             //https://juejin.im/post/6844903881437085709
-            //if (totalObj.hasOwnProperty(newObj.language)) {
             totalObj[newObj.language].push(newObj);
           } else {
             totalObj[newObj.language] = [newObj];
@@ -61,16 +71,17 @@ export default {
         var option = {
           title: {
             text: title,
-            subtext: `Source: ${jsonURL}`,
             textStyle: {
               fontSize: 20,
               align: "left",
             },
+            subtext: `Source: ${jsonURL}`,
             subtextStyle: {
               align: "center",
             },
             sublink: jsonURL,
           },
+          tooltip: {},
           series: {
             type: "sunburst",
             highlightPolicy: "descendant",
@@ -78,6 +89,13 @@ export default {
             data: data,
             radius: [0, "100%"],
             sort: null,
+            animationDelayUpdate: function (idx) {
+              // 越往后的数据延迟越大
+              return idx * 70;
+            },
+            label: {
+              minAngle: 5,
+            },
             levels: [
               {},
               {
@@ -87,19 +105,12 @@ export default {
                   borderWidth: 2,
                 },
                 label: {
-                  rotate: "tangential",
+                  align: "left",
                 },
               },
               {
-                r0: "35%",
-                r: "70%",
-                label: {
-                  align: "right",
-                },
-              },
-              {
-                r0: "70%",
-                r: "72%",
+                r0: "40%",
+                r: "45%",
                 label: {
                   position: "outside",
                   padding: 3,
