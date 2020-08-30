@@ -37,6 +37,14 @@ export default {
       })
       .then(function (jsonData) {
         that.fixedData = jsonData.map(function (element) {
+          const forked = element.fork ? "Forked  " : "";
+          const tooltip =
+            `<p class="tooltip-title">${element.name}</p>` +
+            forked +
+            `${element.forks} <i class="fas fa-code-branch"></i> ` +
+            `${element.stargazers_count} <i class='fas fa-star'></i>` +
+            `<br/>${element.description || "No description"}`;
+
           return {
             name: element.name,
             link: element["html_url"], //TODO: nodeclick=link?
@@ -46,11 +54,7 @@ export default {
             forks: element.forks,
             stars: element.stargazers_count,
             value: element.stargazers_count + 1,
-            tooltip: `<p class="tooltip-title">${element.name}</p>${
-              element.fork ? "forked<br/>" : ""
-            }${element.forks} forks<br/>${element.stargazers_count} stars<br/>${
-              element.description || "No description"
-            }`,
+            tooltip: tooltip,
           };
         });
 
