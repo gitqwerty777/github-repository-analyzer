@@ -1,15 +1,5 @@
 <template>
-  <div id="page">
-    User:
-    <input type="text" v-model="user" @change="onChangeUser" />
-    Chart Value:
-    <select v-model="selected" @change="DrawChart">
-      <option>Stars</option>
-      <option>Forks</option>
-      <option>Equal</option>
-    </select>
-    No forked repositories:
-    <input type="checkbox" v-model="noForked" @change="DrawChart" />
+  <div id="sunburst">
     <!-- 為ECharts準備一個具備大小（寬高）的Dom -->
     <div id="chart"></div>
   </div>
@@ -20,12 +10,14 @@ import echarts from "echarts";
 
 export default {
   name: "Sunburst",
+  props: {
+    noForked: Boolean,
+    user: String,
+    valueType: String,
+  },
   data: function () {
     return {
-      selected: "Stars",
       fixedData: "",
-      user: "gitqwerty777",
-      noForked: true,
     };
   },
   mounted: function () {
@@ -61,7 +53,6 @@ export default {
               forks: element.forks,
               forked: element.fork,
               stars: element.stargazers_count,
-              value: element.stargazers_count + 1,
               tooltip: tooltip,
             };
           });
@@ -73,7 +64,7 @@ export default {
         });
     },
     GetValue: function (obj) {
-      switch (this.selected) {
+      switch (this.valueType) {
         case "Forks":
           return obj.forks + 1;
         case "Stars":
@@ -96,7 +87,7 @@ export default {
       });
 
       const jsonURL = `https://api.github.com/users/${this.user}/repos`;
-      const title = `Github repository analyze: User ${this.user}`;
+      const title = `User ${this.user}`;
       var totalObj = {};
       this.fixedData.forEach(function (newObj) {
         newObj.language = newObj.language || "Unknown";
