@@ -21,19 +21,24 @@ export default {
   },
   data: function () {
     return {
-      fixedData: "",
+      myChart: Object,
     };
   },
   created: function () {
     this.ChangeUserDebounced = _.debounce(this.onChangeUser, 1000);
   },
   mounted: function () {
+    this.myChart = echarts.init(document.getElementById("chart"));
+    this.myChart.on("click", function (params) {
+      // 在用戶點擊後控制台打印數據的名稱
+      event.preventDefault();
+      console.log(params);
+      if (Object.prototype.hasOwnProperty.call(params.data, "link")) {
+        params.event.stop();
+        window.open(params.data.link);
+      }
+    });
     this.onChangeUser();
-  },
-  computed: {
-    rawData: function () {
-      return "";
-    },
   },
   watch: {
     noForked: function () {
@@ -98,19 +103,6 @@ export default {
       return 0;
     },
     DrawChart: function () {
-      var myChart = echarts.init(document.getElementById("chart"));
-      myChart.on("click", function (params) {
-        // 在用戶點擊後控制台打印數據的名稱
-        event.preventDefault();
-        console.log(params);
-        if (Object.prototype.hasOwnProperty.call(params.data, "link")) {
-          params.event.stop();
-          window.open(params.data.link);
-        }
-      });
-
-      const jsonURL = `https://api.github.com/users/${this.user}/repos`;
-      const title = `User ${this.user}`;
       var totalObj = {};
       this.fixedData.forEach(function (newObj) {
         newObj.language = newObj.language || "Unknown";
@@ -133,18 +125,6 @@ export default {
       });
 
       var option = {
-        title: {
-          text: title,
-          textStyle: {
-            fontSize: 20,
-            align: "left",
-          },
-          subtext: `Source: ${jsonURL}`,
-          subtextStyle: {
-            align: "center",
-          },
-          sublink: jsonURL,
-        },
         tooltip: {},
         series: {
           type: "sunburst",
@@ -184,7 +164,7 @@ export default {
         },
       };
       // 使用剛指定的配置項和數據顯示圖表。
-      myChart.setOption(option);
+      this.myChart.setOption(option);
     },
   },
 };

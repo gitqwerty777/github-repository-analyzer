@@ -13,6 +13,7 @@
             :items="valueTypes"
             label="Value Types"
             prepend-icon="mdi-database"
+            :hint="valueTypeHint"
             hide-details
           ></v-select>
         </v-col>
@@ -27,17 +28,6 @@
         <Sunburst :user="user" :noForked="noForked" :valueType="valueType" />
       </v-container>
     </v-main>
-
-    <v-footer app color="blue-grey" class="white--text">
-      <span>
-        gitqwerty777
-        <a href="https://github.com/gitqwerty777">
-          <i class="fab fa-github"></i>
-        </a>
-      </span>
-      <v-spacer></v-spacer>
-      <span>&copy; {{ new Date().getFullYear() }}</span>
-    </v-footer>
   </v-app>
 </template>
 
@@ -55,10 +45,16 @@ export default {
     left: false,
     source: "",
     valueTypes: ["Stars", "Forks", "Equal"],
+    valueTypeHints: ["", "", "All repositories count as 1"],
     valueType: "Stars",
     noForked: true,
     user: "gitqwerty777",
   }),
+  computed: {
+    valueTypeHint: function () {
+      return this.valueTypeHints[this.valueTypes.indexOf(this.valueType)];
+    },
+  },
 };
 </script>
 
