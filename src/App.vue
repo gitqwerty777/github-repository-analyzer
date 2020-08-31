@@ -4,6 +4,7 @@
 
 <script>
 import Sunburst from "@/components/SunBurst.vue";
+
 export default {
   name: "App",
   components: {
@@ -13,13 +14,12 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+#page {
+  font-family: Segoe UI;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 
 body {

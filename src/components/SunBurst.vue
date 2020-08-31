@@ -1,11 +1,15 @@
 <template>
   <div id="page">
+    User:
+    <input type="text" v-model="user" @change="onChangeUser" />
     Chart Value:
     <select v-model="selected" @change="DrawChart">
       <option>Stars</option>
       <option>Forks</option>
       <option>Equal</option>
     </select>
+    No forked repositories:
+    <input type="checkbox" v-model="noForked" @change="DrawChart" />
     <!-- 為ECharts準備一個具備大小（寬高）的Dom -->
     <div id="chart"></div>
   </div>
@@ -16,55 +20,58 @@ import echarts from "echarts";
 
 export default {
   name: "Sunburst",
-  props: {
-    user: String,
-  },
   data: function () {
     return {
       selected: "Stars",
       fixedData: "",
+      user: "gitqwerty777",
+      noForked: true,
     };
   },
   mounted: function () {
-    // 基於準備好的dom，初始化echarts實例
-    var that = this;
-    const jsonURL = `https://api.github.com/users/${this.user}/repos`;
-    fetch(jsonURL, {
-      method: "get",
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (jsonData) {
-        that.fixedData = jsonData.map(function (element) {
-          const forked = element.fork ? "Forked  " : "";
-          const tooltip =
-            `<p class="tooltip-title">${element.name}</p>` +
-            forked +
-            `${element.forks} <i class="fas fa-code-branch"></i> ` +
-            `${element.stargazers_count} <i class='fas fa-star'></i>` +
-            `<br/>${element.description || "No description"}`;
-
-          return {
-            name: element.name,
-            link: element["html_url"], //TODO: nodeclick=link?
-            target: "_blank",
-            description: element.description,
-            language: element.language,
-            forks: element.forks,
-            stars: element.stargazers_count,
-            value: element.stargazers_count + 1,
-            tooltip: tooltip,
-          };
-        });
-
-        that.DrawChart();
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+    this.onChangeUser();
   },
   methods: {
+    onChangeUser: function () {
+      var that = this;
+      const jsonURL = `https://api.github.com/users/${this.user}/repos`;
+      fetch(jsonURL, {
+        method: "get",
+      })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (jsonData) {
+          that.fixedData = jsonData.map(function (element) {
+            const forked = element.fork ? "Forked  " : "";
+            const tooltip =
+              `<p class="tooltip-title">${element.name}</p>` +
+              forked +
+              `${element.forks} <i class="fas fa-code-branch"></i> ` +
+              `${element.stargazers_count} <i class='fas fa-star'></i>` +
+              `<br/>${element.description || "No description"}` +
+              "<br/><br/>Click to open this repository";
+
+            return {
+              name: element.name,
+              link: element["html_url"], //TODO: nodeclick=link?
+              target: "_blank",
+              description: element.description,
+              language: element.language,
+              forks: element.forks,
+              forked: element.fork,
+              stars: element.stargazers_count,
+              value: element.stargazers_count + 1,
+              tooltip: tooltip,
+            };
+          });
+
+          that.DrawChart();
+        })
+        .catch(function (err) {
+          console.log(err);
+        });
+    },
     GetValue: function (obj) {
       switch (this.selected) {
         case "Forks":
@@ -78,14 +85,27 @@ export default {
     },
     DrawChart: function () {
       var myChart = echarts.init(document.getElementById("chart"));
+      myChart.on("click", function (params) {
+        // 在用戶點擊後控制台打印數據的名稱
+        event.preventDefault();
+        console.log(params);
+        if (Object.prototype.hasOwnProperty.call(params.data, "link")) {
+          params.event.stop();
+          window.open(params.data.link);
+        }
+      });
+
       const jsonURL = `https://api.github.com/users/${this.user}/repos`;
       const title = `Github repository analyze: User ${this.user}`;
-
       var totalObj = {};
       this.fixedData.forEach(function (newObj) {
         newObj.language = newObj.language || "Unknown";
         newObj.value = this.GetValue(newObj);
-        if (Object.prototype.hasOwnProperty.call(totalObj, newObj.language)) {
+        if (newObj.forked && this.noForked) {
+          //do nothing
+        } else if (
+          Object.prototype.hasOwnProperty.call(totalObj, newObj.language)
+        ) {
           //https://juejin.im/post/6844903881437085709
           totalObj[newObj.language].push(newObj);
         } else {
@@ -126,7 +146,7 @@ export default {
             {},
             {
               r0: "15%",
-              r: "35%",
+              r: "40%",
               itemStyle: {
                 borderWidth: 2,
               },
@@ -135,8 +155,8 @@ export default {
               },
             },
             {
-              r0: "35%",
-              r: "45%",
+              r0: "40%",
+              r: "43%",
               label: {
                 position: "outside",
                 padding: 3,
