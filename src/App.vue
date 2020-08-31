@@ -54,7 +54,7 @@ export default {
     right: false,
     left: false,
     source: "",
-    valueTypes: ["Stars", "Forks", "Equals"],
+    valueTypes: ["Stars", "Forks", "Equal"],
     valueType: "Stars",
     noForked: true,
     user: "gitqwerty777",

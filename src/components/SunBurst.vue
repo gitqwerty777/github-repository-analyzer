@@ -5,8 +5,12 @@
   </div>
 </template>
 
+//TODO: select value type description
+
+
 <script>
 import echarts from "echarts";
+import _ from "lodash";
 
 export default {
   name: "Sunburst",
@@ -20,8 +24,27 @@ export default {
       fixedData: "",
     };
   },
+  created: function () {
+    this.ChangeUserDebounced = _.debounce(this.onChangeUser, 1000);
+  },
   mounted: function () {
     this.onChangeUser();
+  },
+  computed: {
+    rawData: function () {
+      return "";
+    },
+  },
+  watch: {
+    noForked: function () {
+      this.DrawChart();
+    },
+    user: function () {
+      this.ChangeUserDebounced();
+    },
+    valueType: function () {
+      this.DrawChart();
+    },
   },
   methods: {
     onChangeUser: function () {
@@ -46,7 +69,7 @@ export default {
 
             return {
               name: element.name,
-              link: element["html_url"], //TODO: nodeclick=link?
+              link: element["html_url"],
               target: "_blank",
               description: element.description,
               language: element.language,
