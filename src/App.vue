@@ -3,11 +3,12 @@
     <v-app-bar app color="blue-grey" dark flat>
       <v-toolbar-title>Github Repository Analyzer</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-row align="center" justify="space-around">
+      <v-spacer></v-spacer>
+      <v-row align="center" justify="space-between">
         <v-col cols="4">
           <v-text-field v-model="user" prepend-icon="mdi-account" label="user ID" hide-details></v-text-field>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="3">
           <v-select
             v-model="valueType"
             :items="valueTypes"
@@ -17,9 +18,15 @@
             hide-details
           ></v-select>
         </v-col>
-        <v-col cols="2">
+        <v-col cols="3">
           <v-switch v-model="noForked" label="No Forked Repo" hide-details></v-switch>
         </v-col>
+        <v-btn icon @click="share">
+          <v-icon>mdi-share</v-icon>
+        </v-btn>
+        <v-btn icon @click="openGithub">
+          <v-icon>mdi-github</v-icon>
+        </v-btn>
       </v-row>
     </v-app-bar>
 
@@ -53,6 +60,16 @@ export default {
   computed: {
     valueTypeHint: function () {
       return this.valueTypeHints[this.valueTypes.indexOf(this.valueType)];
+    },
+  },
+  methods: {
+    share: function () {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`
+      );
+    },
+    openGithub: function () {
+      window.open("https://github.com/gitqwerty777");
     },
   },
 };
