@@ -4,23 +4,21 @@
       <v-toolbar-title>Github Repository Analyzer</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-row align="center" justify="space-around">
-        <v-text-field
-          v-model="user"
-          prepend-icon="mdi-account"
-          label="user ID"
-          hide-details
-          class="ma-2"
-        ></v-text-field>
-        <v-spacer></v-spacer>
-        <v-select
-          v-model="valueType"
-          :items="valueTypes"
-          label="Value Types"
-          hide-details
-          class="ma-2"
-        ></v-select>
-        <v-spacer></v-spacer>
-        <v-switch v-model="noForked" label="noFork" hide-details></v-switch>
+        <v-col cols="4">
+          <v-text-field v-model="user" prepend-icon="mdi-account" label="user ID" hide-details></v-text-field>
+        </v-col>
+        <v-col cols="2">
+          <v-select
+            v-model="valueType"
+            :items="valueTypes"
+            label="Value Types"
+            prepend-icon="mdi-database"
+            hide-details
+          ></v-select>
+        </v-col>
+        <v-col cols="2">
+          <v-switch v-model="noForked" label="No Forked Repo" hide-details></v-switch>
+        </v-col>
       </v-row>
     </v-app-bar>
 
