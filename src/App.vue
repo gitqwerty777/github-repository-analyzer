@@ -40,8 +40,11 @@
     </v-app-bar>
 
     <v-main>
+      <v-header>
+      {{ loadingText }}
+      </v-header>
       <v-container class="fill-height" fluid>
-        <Sunburst :user="user" :forked="forked" :showZero="showZero" :valueType="valueType" />
+        <Sunburst :user="user" :forked="forked" :showZero="showZero" :valueType="valueType" @loading="changeLoadingState($event)"/>
       </v-container>
     </v-main>
   </v-app>
@@ -49,7 +52,6 @@
 
 <script>
 import Sunburst from "@/components/SunBurst.vue";
-// import { useRoute } from 'vue-router';
 
 export default {
   name: "App",
@@ -85,8 +87,18 @@ export default {
     valueTypeHint: function () {
       return this.valueTypeHints[this.valueTypes.indexOf(this.valueType)];
     },
+    loadingText: function() {
+      if(this.loading) {
+        return "Loading...";
+      } else {
+        return this.user + "'s Data"
+      }
+    }
   },
   methods: {
+    changeLoadingState: function(loading){
+      this.loading = loading;
+    },
     share: function () {
       let url = window.location.href.split('?')[0];
 

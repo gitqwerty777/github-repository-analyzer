@@ -56,17 +56,11 @@ export default {
     },
   },
   methods: {
-    onChangeUser: function () {
-      var that = this;
-      const jsonURL = `https://api.github.com/users/${this.user}/repos`;
-      fetch(jsonURL, {
-        method: "get",
-      })
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (jsonData) {
-          that.fixedData = jsonData.map(function (element) {
+    parseRepoData: function(that, repoDataJson) {
+      console.log(repoDataJson);
+       repoDataJson.map(function (jsonData) {
+          console.log(jsonData);
+          let fixedData = jsonData.map(function (element) {
             const forked = element.fork ? "Forked  " : "";
             const tooltip =
               `<p class="tooltip-title">${element.name}</p>` +
@@ -89,11 +83,36 @@ export default {
             };
           });
 
-          that.DrawChart();
+          console.log(fixedData.length);
+          that.appendData(fixedData);
         })
-        .catch(function (err) {
-          console.log(err);
-        });
+    },
+    appendData: function (fixedData) {
+      this.fixedData.push(...fixedData);
+    },
+    onChangeUser: function () {
+      this.fixedData = [];
+      this.$emit("loading", "info");
+      // window.alert("Loading data from Github API, please wait...");
+      var that = this;
+      const jsonURL1 = `https://api.github.com/users/${this.user}/repos?per_page=100&page=1`;
+      const jsonURL2 = `https://api.github.com/users/${this.user}/repos?per_page=100&page=2`;
+      const jsonURL3 = `https://api.github.com/users/${this.user}/repos?per_page=100&page=3`;
+      // const jsonURL4 = `https://api.github.com/users/${this.user}/repos?per_page=100&page=4`;
+      // const jsonURL5 = `https://api.github.com/users/${this.user}/repos?per_page=100&page=5`;
+
+      Promise.all([
+        fetch(jsonURL1, { method: "get" }).then((resp) => resp.json()),
+        fetch(jsonURL2, { method: "get" }).then((resp) => resp.json()),
+        fetch(jsonURL3, { method: "get" }).then((resp) => resp.json()),
+      ]).then((responses) => {
+        this.parseRepoData(that, responses);
+        // window.alert("Loading data Complete");
+        that.$emit("loading", false);
+        console.log(that.fixedData.length);
+        that.DrawChart();
+        that.$emit("totalcount", that.fixedData.length);
+      });
     },
     GetValue: function (obj) {
       let defaultVal = this.showZero ? 1 : 0;
