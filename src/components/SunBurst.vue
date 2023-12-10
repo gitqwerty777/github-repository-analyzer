@@ -96,15 +96,12 @@ export default {
         });
     },
     GetValue: function (obj) {
-      let addOne = 0;
-      if (this.showZero) {
-        addOne = 1;
-      }
+      let defaultVal = this.showZero ? 1 : 0;
       switch (this.valueType) {
         case "Forks":
-          return obj.forks + addOne;
+          return (obj.forks!=0) ? obj.forks : defaultVal;
         case "Stars":
-          return obj.stars + addOne;
+          return (obj.stars!=0) ? obj.stars : defaultVal;
         case "Equal":
           return 1;
       }

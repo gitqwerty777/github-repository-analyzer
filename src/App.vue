@@ -2,16 +2,17 @@
   <v-app id="fullpage">
     <v-app-bar app color="blue-grey" dark flat>
       <v-toolbar-title>Github Repository Analyzer</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-spacer></v-spacer>
-      <v-spacer></v-spacer>
-      <v-spacer></v-spacer>
-      <v-spacer></v-spacer>
       <v-row align="center" justify="space-between">
+            <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
+
         <v-col cols="3">
-          <v-text-field v-model="user" prepend-icon="mdi-account" label="user ID" hide-details></v-text-field>
+          <v-text-field v-model="user" prepend-icon="mdi-account" label="user ID" hide-details :loading="loading"></v-text-field>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="2">
           <v-select
             v-model="valueType"
             :items="valueTypes"
@@ -21,6 +22,8 @@
             hide-details
           ></v-select>
         </v-col>
+      <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
         <v-col cols="2">
           <v-switch v-model="forked" label="Show forked repo" hide-details></v-switch>
         </v-col>
@@ -46,9 +49,22 @@
 
 <script>
 import Sunburst from "@/components/SunBurst.vue";
+// import { useRoute } from 'vue-router';
 
 export default {
   name: "App",
+  mounted() {
+    let urlParams = new URLSearchParams(window.location.search);
+    let user = urlParams.get('user');
+    let valueType = urlParams.get('type');
+    let forked = urlParams.get('forked');
+    let showZero = urlParams.get('showzero');
+
+    this.user = (user !== null) ? user : this.user;
+    this.valueType = (valueType !== null) ? valueType : this.valueType;
+    this.forked = (forked !== null) ? (forked == "true") : this.forked;
+    this.showZero = (showZero !== null) ? (showZero == "true") : this.showZero;
+  },
   components: {
     Sunburst,
   },
@@ -62,6 +78,7 @@ export default {
     valueType: "Stars",
     forked: false,
     showZero: true,
+    loading: false,
     user: "gitqwerty777",
   }),
   computed: {
@@ -71,7 +88,13 @@ export default {
   },
   methods: {
     share: function () {
-      const url = window.location.href;
+      let url = window.location.href.split('?')[0];
+
+      url += "?user=" + this.user;
+      url += "&type=" + this.valueType;
+      url += "&forked=" + this.forked;
+      url += "&showzero=" + this.showZero;
+
       navigator.clipboard.writeText(url);
       window.alert("URL copied to clipboard!"); //TODO: 預設可以從網址輸入參數
     },
