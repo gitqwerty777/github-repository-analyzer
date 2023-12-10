@@ -1,6 +1,8 @@
-# skill-tree2
+## Github Repository Analyzer
 
-## Project setup
+分析使用者的公開repository，包含程式語言和star/fork資訊。
+
+### Project setup
 ```
 yarn install
 ```
@@ -14,11 +16,3 @@ yarn serve
 ```
 yarn build
 ```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

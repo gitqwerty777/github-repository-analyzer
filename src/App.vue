@@ -4,8 +4,11 @@
       <v-toolbar-title>Github Repository Analyzer</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
       <v-row align="center" justify="space-between">
-        <v-col cols="4">
+        <v-col cols="3">
           <v-text-field v-model="user" prepend-icon="mdi-account" label="user ID" hide-details></v-text-field>
         </v-col>
         <v-col cols="3">
@@ -18,8 +21,11 @@
             hide-details
           ></v-select>
         </v-col>
-        <v-col cols="3">
-          <v-switch v-model="noForked" label="No Forked Repo" hide-details></v-switch>
+        <v-col cols="2">
+          <v-switch v-model="forked" label="Show forked repo" hide-details></v-switch>
+        </v-col>
+        <v-col cols="2">
+          <v-switch v-model="showZero" label="Show zero value" hide-details></v-switch>
         </v-col>
         <v-btn icon @click="share">
           <v-icon>mdi-share</v-icon>
@@ -32,7 +38,7 @@
 
     <v-main>
       <v-container class="fill-height" fluid>
-        <Sunburst :user="user" :noForked="noForked" :valueType="valueType" />
+        <Sunburst :user="user" :forked="forked" :showZero="showZero" :valueType="valueType" />
       </v-container>
     </v-main>
   </v-app>
@@ -54,7 +60,8 @@ export default {
     valueTypes: ["Stars", "Forks", "Equal"],
     valueTypeHints: ["", "", "All repositories count as 1"],
     valueType: "Stars",
-    noForked: true,
+    forked: false,
+    showZero: true,
     user: "gitqwerty777",
   }),
   computed: {
@@ -64,9 +71,9 @@ export default {
   },
   methods: {
     share: function () {
-      window.open(
-        `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`
-      );
+      const url = window.location.href;
+      navigator.clipboard.writeText(url);
+      window.alert("URL copied to clipboard!"); //TODO: 預設可以從網址輸入參數
     },
     openGithub: function () {
       window.open("https://github.com/gitqwerty777");

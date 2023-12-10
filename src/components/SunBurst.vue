@@ -15,7 +15,8 @@ import _ from "lodash";
 export default {
   name: "Sunburst",
   props: {
-    noForked: Boolean,
+    forked: Boolean,
+    showZero: Boolean,
     user: String,
     valueType: String,
   },
@@ -41,7 +42,10 @@ export default {
     this.onChangeUser();
   },
   watch: {
-    noForked: function () {
+    showZero: function () {
+      this.DrawChart();
+    },
+    forked: function () {
       this.DrawChart();
     },
     user: function () {
@@ -92,11 +96,15 @@ export default {
         });
     },
     GetValue: function (obj) {
+      let addOne = 0;
+      if (this.showZero) {
+        addOne = 1;
+      }
       switch (this.valueType) {
         case "Forks":
-          return obj.forks + 1;
+          return obj.forks + addOne;
         case "Stars":
-          return obj.stars + 1;
+          return obj.stars + addOne;
         case "Equal":
           return 1;
       }
@@ -107,7 +115,7 @@ export default {
       this.fixedData.forEach(function (newObj) {
         newObj.language = newObj.language || "Unknown";
         newObj.value = this.GetValue(newObj);
-        if (newObj.forked && this.noForked) {
+        if (newObj.forked && !this.forked) {
           //do nothing
         } else if (
           Object.prototype.hasOwnProperty.call(totalObj, newObj.language)
